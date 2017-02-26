@@ -39,7 +39,7 @@ local function readUntil(data, offset, stopchr)
         chr = data:sub(offset, offset)
     end
 
-    return {table.getn(buf), table.concat(buf,'')}
+    return {#buf, table.concat(buf,'')}
 end
 
 local function readChrs(data, offset, length)
@@ -51,7 +51,7 @@ local function readChrs(data, offset, length)
 
         length = length - utf8Overhead(chr)
     end
-    return {table.getn(buf), table.concat(buf,'')}
+    return {#buf, table.concat(buf,'')}
 end
 
 
@@ -132,28 +132,6 @@ local function _unserialize(data, offset)
         end
 
         dataoffset = dataoffset + 1
-    elseif dtype == 'c' then
-        ccount = readUntil(data, dataoffset, ':')
-
-        chrs         = tonumber(ccount[1])
-        stringlength = tonumber(ccount[2])
-        dataoffset = dataoffset + chrs + 2
-
-        readData = readChrs(data, dataoffset, stringlength)
-        chrs     = readData[1]
-        readdata = readData[2]
-        dataoffset = dataoffset + chrs + 2
-
-        ccount = readUntil(data, dataoffset, ':')
-
-        chrs         = tonumber(ccount[1])
-        stringlength = tonumber(ccount[2])
-        dataoffset = dataoffset + chrs + 2
-
-        readData = readChrs(data, dataoffset, stringlength)
-        chrs     = readData[1]
-        readdata = readdata  .. '|' .. readData[2]
-        dataoffset = dataoffset + chrs + 1
     else
         error('SyntaxError', 'Unknown / Unhandled data type(s): ' + dtype);
     end
